@@ -1,13 +1,37 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Iproduct } from './product';
+
 @Component({
     selector: 'pm-products',
-    templateUrl: './product-list.component.html'
+    templateUrl: './product-list.component.html',
+    styleUrls: ['./product-list.component.css']
 })
-export class ProductListComponent {
+export class ProductListComponent implements OnInit {
+    ngOnInit(): void {
+        //throw new Error('Method not implemented.');
+        // console.log('OnInit');
+        this.listFilter = 'cart';
+
+    }
     pageTitle = 'Product List!';
     imageWidth = 50;
     imageMargin = 2;
-    products: any[] =
+    showImage: boolean = false;
+
+    private _listFilter: string = '';
+    public get listFilter(): string {
+        return this._listFilter;
+    }
+    public set listFilter(value: string) {
+        this._listFilter = value;
+        console.log('In setter: ', value);
+        this.filteredProducts = this.performFilter(value);
+    }
+
+    filteredProducts: Iproduct[] = [];
+
+
+    products: Iproduct[] =
         [
             {
                 "productId": 2,
@@ -29,6 +53,14 @@ export class ProductListComponent {
                 "starRating": 4.8,
                 "imageUrl": "assets/images/hammer.png"
             }
-        ]
-        ;
+        ];
+
+    performFilter(filterBy: string): Iproduct[] {
+        filterBy = filterBy.toLocaleLowerCase();
+        return this.products.filter((product: Iproduct) => product.productName.toLocaleLowerCase().includes(filterBy));
+    }
+
+    toggleImage(): void {
+        this.showImage = !this.showImage;
+    }
 }
