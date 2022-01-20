@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Iproduct } from './product';
 import { ProductService } from './product.service';
 
@@ -8,19 +9,12 @@ import { ProductService } from './product.service';
     styleUrls: ['./product-list.component.css']
 })
 export class ProductListComponent implements OnInit {
-
-    ngOnInit(): void {
-        //throw new Error('Method not implemented.');
-        // console.log('OnInit');
-        this.products = this.productService.getProduct();
-        this.filteredProducts = this.products;
-
-    }
-
     pageTitle = 'Product List!';
     imageWidth = 50;
     imageMargin = 2;
     showImage: boolean = false;
+    errorMessage: string = '';
+    subscription!: Subscription;
 
     private _listFilter: string = '';
     public get listFilter(): string {
@@ -36,9 +30,9 @@ export class ProductListComponent implements OnInit {
 
     products: Iproduct[] = [];
 
-    constructor(private productService: ProductService) {
+    constructor(private productService: ProductService) { }
 
-    }
+
     performFilter(filterBy: string): Iproduct[] {
         filterBy = filterBy.toLocaleLowerCase();
         return this.products.filter((product: Iproduct) => product.productName.toLocaleLowerCase().includes(filterBy));
@@ -48,7 +42,20 @@ export class ProductListComponent implements OnInit {
         this.showImage = !this.showImage;
     }
 
-
+    ngOnInit(): void {
+        this.productService.getProduct().subscribe({
+            next: products => {
+                this.products = products;
+                this.filteredProducts = this.products;
+            },
+            error: err => this.errorMessage = err
+        });
+    }
+    /*
+        ngOnDestroy(): void {
+            this.subscription.unsubscribe();
+        }
+        */
 
     onRatingClicked(message: string): void {
         this.pageTitle = 'Product List: ' + message;
